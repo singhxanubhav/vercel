@@ -4,6 +4,10 @@ import simpleGit from "simple-git";
 import { generate } from "./utils";
 import { getAllFiles } from "./file";
 import path from "path";
+// for redis
+import { createClient } from "redis";
+const publisher = createClient();
+publisher.connect();
 
 const app = express();
 app.use(cors());
@@ -19,6 +23,9 @@ app.post("/deploy", async (req, res)=>{
 
     const files = getAllFiles(path.join(__dirname, `output/${id}`));
     console.log(repoUrl);
+
+    publisher.lPush("build-queue", id);
+
     res.json({
         id: id
     })
